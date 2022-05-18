@@ -82,7 +82,7 @@ function App() {
         />
         {points.map((point, id) => (
           <Marker key={id} position={[point.lat, point.lon]} icon={markerIcon}>
-            <Popup maxWidth={500}>
+            <Popup maxWidth={500} closeButton={false}>
               {labels.map((label) => (
                 <PopupRow
                   key={label}
