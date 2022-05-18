@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/JaroslawPokropinski/google-sheets-map/static/css/main.8541398f.css",
-    "main.js": "/JaroslawPokropinski/google-sheets-map/static/js/main.8c8fea68.js",
+    "main.js": "/JaroslawPokropinski/google-sheets-map/static/js/main.913f7f55.js",
     "static/js/787.1732b206.chunk.js": "/JaroslawPokropinski/google-sheets-map/static/js/787.1732b206.chunk.js",
     "index.html": "/JaroslawPokropinski/google-sheets-map/index.html",
     "main.8541398f.css.map": "/JaroslawPokropinski/google-sheets-map/static/css/main.8541398f.css.map",
-    "main.8c8fea68.js.map": "/JaroslawPokropinski/google-sheets-map/static/js/main.8c8fea68.js.map",
+    "main.913f7f55.js.map": "/JaroslawPokropinski/google-sheets-map/static/js/main.913f7f55.js.map",
     "787.1732b206.chunk.js.map": "/JaroslawPokropinski/google-sheets-map/static/js/787.1732b206.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.8541398f.css",
-    "static/js/main.8c8fea68.js"
+    "static/js/main.913f7f55.js"
   ]
 }
