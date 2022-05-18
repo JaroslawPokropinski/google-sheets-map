@@ -1,0 +1,15 @@
+.app {
+  width: 100vw;
+  height: 100vh;
+}
+.map {
+  width: 100vw;
+  height: 100%;
+}
+
+.popup-row {
+  display: flex;
+  .label {
+    min-width: 100px;
+  }
+}
