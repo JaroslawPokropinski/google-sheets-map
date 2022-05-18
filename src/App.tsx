@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
-import Leaflet from "leaflet";
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
-import useGoogleSheets from "use-google-sheets";
-import { Sheet } from "use-google-sheets/dist/types";
-import markerIconUrl from "leaflet/dist/images/marker-icon.png";
-import markerShadowUrl from "leaflet/dist/images/marker-shadow.png";
+import { useEffect, useState } from 'react';
+import Leaflet from 'leaflet';
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import useGoogleSheets from 'use-google-sheets';
+import { Sheet } from 'use-google-sheets/dist/types';
+import markerIconUrl from 'leaflet/dist/images/marker-icon.png';
+import markerShadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
-import { PopupRow } from "./PopupRow";
-import { useSearchParams } from "react-router-dom";
+import { PopupRow } from './PopupRow';
+import { useSearchParams } from 'react-router-dom';
 
-import "./App.scss";
+import './App.scss';
 
 const markerIcon = Leaflet.icon({
   iconUrl: markerIconUrl,
@@ -42,16 +42,16 @@ async function getPoints(
 
 function App() {
   const [searchParams] = useSearchParams();
-  const sheetId = searchParams.get("id") ?? "";
+  const sheetId = searchParams.get('id') ?? '';
 
-  const coordsLabels = (searchParams.get("coordsLabels") ?? "lat,lon").split(
-    ","
+  const coordsLabels = (searchParams.get('coordsLabels') ?? 'lat,lon').split(
+    ','
   );
 
-  const labels = (searchParams.get("labels") ?? "").split(",");
+  const labels = (searchParams.get('labels') ?? '').split(',');
 
   const { data, loading } = useGoogleSheets({
-    apiKey: process.env.REACT_APP_API_KEY ?? "",
+    apiKey: process.env.REACT_APP_API_KEY ?? '',
     sheetId,
   });
 
@@ -81,7 +81,11 @@ function App() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         {points.map((point, id) => (
-          <Marker key={id} position={[point.lat, point.lon]} icon={markerIcon}>
+          <Marker
+            key={id}
+            position={[point.lat + Math.random() * 0.01, point.lon]}
+            icon={markerIcon}
+          >
             <Popup maxWidth={500} closeButton={false}>
               {labels.map((label) => (
                 <PopupRow
