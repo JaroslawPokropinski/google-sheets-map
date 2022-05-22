@@ -8,8 +8,24 @@ import markerShadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
 import { PopupRow } from './PopupRow';
 import { useSearchParams } from 'react-router-dom';
+import geoindex from './geoindex.json';
+import elasticlunr from 'elasticlunr';
 
 import './App.scss';
+
+type Place = {
+  id: string;
+  name: string;
+  lat: number;
+  lon: number;
+  regionNames: string[];
+};
+
+declare global {
+  interface Window {
+    index: elasticlunr.Index<Place> | null | undefined;
+  }
+}
 
 const markerIcon = Leaflet.icon({
   iconUrl: markerIconUrl,
@@ -26,29 +42,56 @@ type PointData = { lat: number; lon: number; rowData: any };
 
 async function getPoints(
   rows: any[],
-  coordsLabels: string[]
+  locationLabel: string | null,
+  coordsLabels: string[] | null
 ): Promise<PointData[]> {
-  return rows
-    .map((row) => {
+  async function getLoc(row: any) {
+    if (coordsLabels) {
       const lat = parseFloat(row[coordsLabels[0]]);
       const lon = parseFloat(row[coordsLabels[1]]);
 
-      if (!lat || !lon) return null;
+      if (lat && lon) {
+        return { lat, lon };
+      }
+    }
 
-      return { lat, lon, rowData: row };
-    })
-    .filter((point): point is PointData => !!point);
+    if (locationLabel && window.index) {
+      // fetch location from geoindex
+      const location = row[locationLabel];
+      if (!location) return null;
+
+      const res = window.index.search(location);
+
+      if (!res.length) return null;
+
+      const doc = window.index.documentStore.getDoc(res[0]?.ref);
+      return { lat: doc.lat, lon: doc.lon };
+    }
+
+    return null;
+  }
+
+  async function getPointsAsync(row: any) {
+    const loc = await getLoc(row);
+    if (!loc) return null;
+
+    const { lat, lon } = loc;
+    return { lat, lon, rowData: row };
+  }
+
+  return (await Promise.all(rows.map((row) => getPointsAsync(row)))).filter(
+    (point): point is PointData => !!point
+  );
 }
 
 function App() {
   const [searchParams] = useSearchParams();
   const sheetId = searchParams.get('id') ?? '';
 
-  const coordsLabels = (searchParams.get('coordsLabels') ?? 'lat,lon').split(
-    ','
-  );
+  const coordsLabels = searchParams.get('coordsLabels')?.split(',');
+  const locationLabel = searchParams.get('locationLabel');
 
-  const labels = (searchParams.get('labels') ?? '').split(',');
+  const labels = searchParams.get('labels')?.split(',') ?? [];
 
   const { data, loading } = useGoogleSheets({
     apiKey: process.env.REACT_APP_API_KEY ?? '',
@@ -59,9 +102,21 @@ function App() {
   const [points, setPoints] = useState<PointData[]>([]);
 
   useEffect(() => {
+    window.index = elasticlunr.Index.load<Place>(geoindex as any);
+
+    return () => {
+      window.index = null;
+    };
+  }, []);
+
+  useEffect(() => {
     const preparePoints = async () => {
       if (!loading && JSON.stringify(data) !== prevData) {
-        const points = await getPoints(getRows(data), coordsLabels);
+        const points = await getPoints(
+          getRows(data),
+          locationLabel,
+          coordsLabels ?? null
+        );
         setPoints(points);
       }
     };
@@ -69,7 +124,7 @@ function App() {
     preparePoints();
 
     setPrevData(JSON.stringify(data));
-  }, [loading, data, prevData, coordsLabels]);
+  }, [loading, data, prevData, coordsLabels, locationLabel]);
 
   const position: [number, number] = [51.1087443, 17.0143368];
 
